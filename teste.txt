@@ -1,0 +1,5 @@
+calcule 2 + 3
+calcule 10 - 4
+calcule 6 * 7
+calcule 15 / 3
+mostre resultado
