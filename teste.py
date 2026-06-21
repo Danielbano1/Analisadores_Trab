@@ -1,24 +1,29 @@
 import sys
+import os
 sys.path.insert(0, '.')
 from parser import transpilar, parser
 
-src = """
-calcule 2 + 3
-mostre resultado
+src = """\
+dispositivo: {lampada, potenciaLampada}
+dispositivo: {umidificador, potenciaUmidificador}
+dispositivo: {Monitor}
+set {lampada, potenciaLampada} = 100 .
+se umidade < 40 entao
+    enviar alerta ("Ar seco detectado") Monitor .
+    se verificar(umidificador) == 0 entao
+        ligar umidificador .
+        set potenciaUmidificador = 100 .
 
-calcule 10 - 4
-mostre resultado
-
-calcule 2 + 3 * 4
-mostre resultado
+se movimento == True entao ligar lampada senao desligar lampada .
 """
 
-python_code = transpilar(src)
-print("=== Python gerado ===")
-print(python_code)
-print("=== Executando ===")
-exec(python_code, {})
+c_code = transpilar(src)
+print("=== C gerado ===")
+print(c_code)
 
-
-ast = parser.parse(src)
-print(ast)
+print("\n=== Executando parser ===")
+try:
+    ast = parser.parse(src)
+    print("AST gerada com sucesso!")
+except Exception as e:
+    print("Erro no parser:", e)
