@@ -3,6 +3,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 import ply.yacc as yacc
 from lexer import tokens
 
+def check_len(val, name, limit=100):
+    if len(val) > limit:
+        print(f"[Semântico] Erro: {name} excede {limit} caracteres.")
+        return val[:limit]
+    return val
+
 def p_programa(p):
     'programa : devices cmds'
     p[0] = ('program', p[1], p[2])
@@ -17,11 +23,11 @@ def p_devices_single(p):
 
 def p_device_obs(p):
     'device : DISPOSITIVO COLON LBRACE ID COMMA ID RBRACE'
-    p[0] = ('device', p[4], p[6])
+    p[0] = ('device', check_len(p[4], 'namedevice'), p[6])
 
 def p_device_simple(p):
     'device : DISPOSITIVO COLON LBRACE ID RBRACE'
-    p[0] = ('device', p[4], None)
+    p[0] = ('device', check_len(p[4], 'namedevice'), None)
 
 def p_cmds_multi(p):
     'cmds : cmd cmds'
@@ -47,6 +53,7 @@ def p_attrib_act(p):
 
 def p_attrib_complex(p):
     'attrib : SET LBRACE ID COMMA ID RBRACE EQUALS var'
+    check_len(p[3], 'namedevice')
     p[0] = ('attrib', p[5], p[8])
 
 def p_obsact_if(p):
@@ -72,7 +79,7 @@ def p_obs_simple(p):
 
 def p_obs_verificar(p):
     'obs : VERIFICAR LPAREN ID RPAREN oplogic var'
-    p[0] = ('obs_verificar', p[3], p[5], p[6])
+    p[0] = ('obs_verificar', check_len(p[3], 'namedevice'), p[5], p[6])
 
 def p_obs_and(p):
     'obs : obs AND obs'
@@ -101,35 +108,35 @@ def p_var(p):
 def p_actexecute_action(p):
     '''actexecute : LIGAR ID
                   | DESLIGAR ID'''
-    p[0] = ('act_exe', p[1], p[2])
+    p[0] = ('act_exe', p[1], check_len(p[2], 'namedevice'))
 
 def p_actexecute_verificar(p):
     'actexecute : VERIFICAR LPAREN ID RPAREN'
-    p[0] = ('act_exe', p[1], p[3])
+    p[0] = ('act_exe', p[1], check_len(p[3], 'namedevice'))
 
 def p_actalert_simple(p):
     'actalert : ENVIAR ALERTA LPAREN STRING RPAREN ID'
-    p[0] = ('act_alert', p[4], p[6], None)
+    p[0] = ('act_alert', check_len(p[4], 'msg'), check_len(p[6], 'namedevice'), None)
 
 def p_actalert_obs(p):
     'actalert : ENVIAR ALERTA LPAREN STRING COMMA ID RPAREN ID'
-    p[0] = ('act_alert', p[4], p[8], p[6])
+    p[0] = ('act_alert', check_len(p[4], 'msg'), check_len(p[8], 'namedevice'), p[6])
 
 def p_actalert_broadcast(p):
     'actalert : ENVIAR ALERTA LPAREN STRING RPAREN PARA TODOS COLON id_list'
-    p[0] = ('act_broadcast', p[4], p[9], None)
+    p[0] = ('act_broadcast', check_len(p[4], 'msg'), p[9], None)
 
 def p_actalert_broadcast_obs(p):
     'actalert : ENVIAR ALERTA LPAREN STRING COMMA ID RPAREN PARA TODOS COLON id_list'
-    p[0] = ('act_broadcast', p[4], p[11], p[6])
+    p[0] = ('act_broadcast', check_len(p[4], 'msg'), p[11], p[6])
 
 def p_id_list_multi(p):
     'id_list : ID COMMA id_list'
-    p[0] = [p[1]] + p[3]
+    p[0] = [check_len(p[1], 'namedevice')] + p[3]
 
 def p_id_list_single(p):
     'id_list : ID'
-    p[0] = [p[1]]
+    p[0] = [check_len(p[1], 'namedevice')]
 
 def p_opt_dot_dot(p):
     'opt_dot : DOT'
