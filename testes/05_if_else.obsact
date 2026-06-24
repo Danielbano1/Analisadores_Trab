@@ -1,0 +1,4 @@
+dispositivo: {celular, movimento}
+dispositivo: {lampada, potencia}
+set potencia = 100 .
+se movimento == True entao ligar lampada senao desligar lampada .

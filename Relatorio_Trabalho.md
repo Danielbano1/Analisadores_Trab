@@ -1,7 +1,7 @@
 # Relatório do Trabalho: Analisador Sintático ObsAct
 
 ## 1. O que foi implementado
-Foi implementado um transpilador completo da linguagem **ObsAct** para a linguagem **C**. O trabalho foi desenvolvido utilizando a ferramenta PLY (Python Lex-Yacc) para construir os analisadores léxico (`lexer.py`) e sintático (`parser.py`). O script `teste.py` foi atualizado para compilar um código de exemplo da linguagem ObsAct e exibir o código C gerado, testando o fluxo ponta a ponta.
+Foi implementado um transpilador completo da linguagem **ObsAct** para a linguagem **C**. O trabalho foi desenvolvido utilizando a ferramenta PLY (Python Lex-Yacc) para construir os analisadores léxico (`lexer.py`) e sintático (`parser.py`). Os testes foram organizados em múltiplos arquivos dentro da pasta `testes/`. O script `rodar_testes.py` foi criado para rodar todos os exemplos em lote e gerar o código C resultante na pasta `saida_testes/`, testando o fluxo ponta a ponta de forma automatizada.
 
 ## 2. Como foi implementado
 

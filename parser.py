@@ -98,15 +98,14 @@ def p_var(p):
     else:
         p[0] = p[1]
 
-def p_actexecute(p):
-    'actexecute : ACTION ID'
+def p_actexecute_action(p):
+    '''actexecute : LIGAR ID
+                  | DESLIGAR ID'''
     p[0] = ('act_exe', p[1], p[2])
 
-def p_action(p):
-    '''ACTION : LIGAR
-              | DESLIGAR
-              | VERIFICAR'''
-    p[0] = p[1]
+def p_actexecute_verificar(p):
+    'actexecute : VERIFICAR LPAREN ID RPAREN'
+    p[0] = ('act_exe', p[1], p[3])
 
 def p_actalert_simple(p):
     'actalert : ENVIAR ALERTA LPAREN STRING RPAREN ID'
@@ -254,12 +253,41 @@ int main() {
     devices = ast[1]
     cmds = ast[2]
     
-    # Declarar variáveis das observações com valor 0 inicial
+    def coletar_variaveis(comandos, vars_set):
+        for cmd in comandos:
+            tipo = cmd[0]
+            if tipo == 'attrib':
+                vars_set.add(cmd[1])
+            elif tipo == 'ifelse':
+                coletar_vars_obs(cmd[1], vars_set)
+                coletar_variaveis(cmd[2], vars_set)
+                if cmd[3]:
+                    coletar_variaveis(cmd[3], vars_set)
+            elif tipo in ('act_alert', 'act_broadcast'):
+                if cmd[3]:
+                    vars_set.add(cmd[3])
+
+    def coletar_vars_obs(obs_node, vars_set):
+        tipo = obs_node[0]
+        if tipo == 'obs':
+            vars_set.add(obs_node[1])
+        elif tipo == 'and':
+            coletar_vars_obs(obs_node[1], vars_set)
+            coletar_vars_obs(obs_node[2], vars_set)
+
+    vars_set = set()
+    # Adiciona vars dos devices
     for dev in devices:
         if dev[2]:
-            codigo += f"    int {dev[2]} = 0;\n"
+            vars_set.add(dev[2])
+    # Busca vars nos comandos (ex: estado_ventilador)
+    coletar_variaveis(cmds, vars_set)
     
-    codigo += "\n    // Execucao\n"
+    # Declarar variáveis coletadas com valor 0 inicial
+    for v in sorted(vars_set):
+        codigo += f"    int {v} = 0;\n"
+    
+    codigo += "\n"
     codigo += gerar_cmds(cmds, indent="    ")
     codigo += "    return 0;\n}\n"
     return codigo

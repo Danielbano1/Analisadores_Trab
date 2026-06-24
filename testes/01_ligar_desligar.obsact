@@ -1,0 +1,4 @@
+dispositivo: {lampada, potencia}
+set potencia = 100 .
+ligar lampada .
+desligar lampada .
